@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K 데몬헌터 키우기 - 기술 포트폴리오</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            line-height: 1.7;
+            color: #24292e;
+            background-color: #ffffff;
+            padding: 50px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* Headers */
+        h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 40px 0 24px 0;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #0366d6;
+            letter-spacing: -0.5px;
+        }
+
+        h1:first-child {
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 2em;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 36px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e1e4e8;
+            page-break-before: always;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 28px 0 14px 0;
+        }
+
+        h4 {
+            font-size: 1.25em;
+            font-weight: 600;
+            color: #34495e;
+            margin: 24px 0 12px 0;
+        }
+
+        /* Paragraphs and text */
+        p {
+            margin: 14px 0;
+            line-height: 1.7;
+        }
+
+        strong {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 14px 0;
+            padding-left: 32px;
+        }
+
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        /* Code */
+        code {
+            background-color: #f6f8fa;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', 'D2Coding', monospace;
+            font-size: 0.88em;
+            color: #d73a49;
+            border: 1px solid #e1e4e8;
+        }
+
+        pre {
+            background-color: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 20px 0;
+            line-height: 1.5;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            color: #24292e;
+            font-size: 0.88em;
+            border: none;
+            display: block;
+            white-space: pre;
+            word-wrap: normal;
+        }
+
+        /* Horizontal rule */
+        hr {
+            border: none;
+            border-top: 2px solid #e1e4e8;
+            margin: 32px 0;
+        }
+
+        /* Tables */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #d0d7de;
+            padding: 10px 16px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f6f8fa;
+            font-weight: 600;
+        }
+
+        /* Blockquotes */
+        blockquote {
+            border-left: 4px solid #0366d6;
+            padding-left: 20px;
+            margin: 20px 0;
+            color: #586069;
+            font-style: italic;
+        }
+
+        /* Special styling for effect sections */
+        p strong:first-child {
+            color: #0366d6;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                padding: 30px;
+                font-size: 11pt;
+            }
+
+            h1 {
+                font-size: 26pt;
+                page-break-after: avoid;
+            }
+
+            h2 {
+                font-size: 20pt;
+                page-break-before: always;
+                page-break-after: avoid;
+            }
+
+            h3 {
+                font-size: 16pt;
+                page-break-after: avoid;
+            }
+
+            h4 {
+                font-size: 13pt;
+                page-break-after: avoid;
+            }
+
+            pre {
+                page-break-inside: avoid;
+                font-size: 9pt;
+                padding: 16px;
+            }
+
+            code {
+                font-size: 9pt;
+            }
+
+            ul, ol {
+                page-break-inside: avoid;
+            }
+
+            a {
+                color: #0366d6;
+                text-decoration: none;
+            }
+
+            /* Ensure code blocks don't break */
+            pre, blockquote {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* Syntax highlighting fallback */
+        .codehilite .k { color: #d73a49; font-weight: bold; }  /* Keyword */
+        .codehilite .kt { color: #005cc5; }  /* Keyword.Type */
+        .codehilite .nc { color: #6f42c1; }  /* Name.Class */
+        .codehilite .nf { color: #6f42c1; }  /* Name.Function */
+        .codehilite .s { color: #032f62; }  /* String */
+        .codehilite .c1 { color: #6a737d; font-style: italic; }  /* Comment */
+        .codehilite .cm { color: #6a737d; font-style: italic; }  /* Comment.Multiline */
+    </style>
+    
+</head>
+<body>
+    <h1 id="k-">K 데몬헌터 키우기 - 기술 포트폴리오</h1>
+<p><strong>프로젝트:</strong> K 데몬헌터 키우기 (모바일 방치형 액션 RPG)<br />
+<strong>개발 환경:</strong> Unity 6000.0,63 C# .NET<br />
+<strong>플랫폼:</strong> Android / iOS</p>
+<hr />
+<h2 id="_1">목차</h2>
+<ol>
+<li><a href="#1-복잡한-스탯-시스템-설계와-성능-최적화">복잡한 스탯 시스템 설계와 성능 최적화</a></li>
+<li><a href="#2-fsm-기반-전투-시스템-아키텍처">FSM 기반 전투 시스템 아키텍처</a></li>
+<li><a href="#3-네트워크-통신-안정성-및-보안-강화">네트워크 통신 안정성 및 보안 강화</a></li>
+<li><a href="#4-대규모-코드베이스-관리-전략">대규모 코드베이스 관리 전략</a></li>
+</ol>
+<hr />
+<h2 id="1">1. 복잡한 스탯 시스템 설계와 성능 최적화</h2>
+<h3 id="_2">도전과제</h3>
+<p>모바일 방치형 RPG의 핵심은 복잡한 스탯 계산입니다. 본 프로젝트에서는:<br />
+- 100개 이상의 스탯 ID 관리<br />
+- 15개 이상의 시스템에서 스탯 적용 (장비, 스킬, 펫, 코스튬, 길드버프, 도감, 영약 등)<br />
+- 다층 계산 구조 (고정값 → 비율 → 승수)<br />
+- 실시간 계산 요구 (프레임마다 공격력, HP, 크리티컬 계산)</p>
+<p>이를 단순하게 구현하면 프레임당 수백 번의 계산이 발생하여 성능 저하가 불가피합니다.</p>
+<h3 id="_3">해결방안</h3>
+<h4 id="11-statcalculator">1.1. StatCalculator 패턴 도입</h4>
+<p>캐싱 기반 지연 계산 패턴을 설계하여 불필요한 재계산을 방지했습니다.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">StatCalculator</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="n">Func</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">computeFunc</span><span class="p">;</span>
+<span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">EventName</span><span class="o">&gt;</span><span class="w"> </span><span class="n">refreshEvents</span><span class="p">;</span>
+<span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">cachedValue</span><span class="p">;</span>
+<span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">isDirty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">StatCalculator</span><span class="p">(</span><span class="n">Func</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">compute</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">EventName</span><span class="o">&gt;</span><span class="w"> </span><span class="n">events</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="n">computeFunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute</span><span class="p">;</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="n">refreshEvents</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">events</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// 이벤트 발생 시에만 더티 플래그 설정</span>
+<span class="w">        </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">eventName</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">refreshEvents</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">EventUtils</span><span class="p">.</span><span class="n">AddEventListener</span><span class="p">(</span><span class="n">eventName</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">isDirty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="nf">ComputeValue</span><span class="p">()</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 캐시된 값이 유효하면 재계산 없이 반환</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">isDirty</span><span class="p">)</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">cachedValue</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// 더티 상태일 때만 재계산</span>
+<span class="w">        </span><span class="n">cachedValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">computeFunc</span><span class="p">();</span>
+<span class="w">        </span><span class="n">isDirty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">false</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">cachedValue</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 사용 예시</span>
+<span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">StatCalculator</span><span class="w"> </span><span class="n">Attack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ComputeAttack</span><span class="p">(),</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">EventName</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">EventName</span><span class="p">.</span><span class="n">RefreshStat</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">);</span>
+<span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">StatCalculator</span><span class="w"> </span><span class="n">HP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ComputeHP</span><span class="p">(),</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">EventName</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">EventName</span><span class="p">.</span><span class="n">RefreshStat</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">);</span>
+</code></pre></div>
+
+<p><strong>효과:</strong><br />
+- 프레임당 재계산 횟수: 수백 회 → 0~10회<br />
+- 스탯 변경 이벤트 발생 시에만 재계산</p>
+<h4 id="12">1.2. 다층 스탯 집계 시스템</h4>
+<p>15개 시스템의 스탯을 효율적으로 집계하는 구조를 설계했습니다.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ApplyTotalStats</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// 1단계: 모든 스탯 초기화</span>
+<span class="w">    </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">metaStatKeyInfo</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">StatKeyUtils</span><span class="p">.</span><span class="n">MetaStatKeyDictionary</span><span class="p">.</span><span class="n">Values</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">_statDic</span><span class="p">[</span><span class="n">metaStatKeyInfo</span><span class="p">.</span><span class="n">statId</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">ProfileUtils</span><span class="p">.</span><span class="n">ApplyOwnValuesToPlayerStat</span><span class="p">();</span><span class="w">           </span><span class="c1">// 프로필</span>
+<span class="w">    </span><span class="n">CharacterUtils</span><span class="p">.</span><span class="n">ApplyStatValuesToPlayerStat</span><span class="p">();</span><span class="w">        </span><span class="c1">// 캐릭터 레벨</span>
+<span class="w">    </span><span class="n">ContentsOptionUtils</span><span class="p">.</span><span class="n">ApplyOptionValuesToPlayerStat</span><span class="p">();</span><span class="w"> </span><span class="c1">// 기혈 시스템</span>
+<span class="w">    </span><span class="n">SkillUtils</span><span class="p">.</span><span class="n">ApplyOwnValuesToPlayerStat</span><span class="p">();</span><span class="w">             </span><span class="c1">// 술법</span>
+<span class="w">    </span><span class="n">PassiveSkillUtils</span><span class="p">.</span><span class="n">ApplyOwnValuesToPlayerStat</span><span class="p">();</span><span class="w">      </span><span class="c1">// 부적</span>
+<span class="w">    </span><span class="n">PetUtils</span><span class="p">.</span><span class="n">ApplyOwnValuesToPlayerStat</span><span class="p">();</span><span class="w">               </span><span class="c1">// 영물</span>
+<span class="w">    </span><span class="n">CostumeUtils</span><span class="p">.</span><span class="n">ApplyOwnValuesToPlayerStat</span><span class="p">();</span><span class="w">           </span><span class="c1">// 외형</span>
+<span class="w">    </span><span class="n">TacticsBuildUtils</span><span class="p">.</span><span class="n">ApplyOwnValuesToPlayerStat</span><span class="p">();</span><span class="w">      </span><span class="c1">// 추천 빌드</span>
+<span class="w">    </span><span class="n">PromotionUtils</span><span class="p">.</span><span class="n">ApplyOwnValuesToPlayerStat</span><span class="p">();</span><span class="w">         </span><span class="c1">// 승급</span>
+<span class="w">    </span><span class="n">GuildBuffUtils</span><span class="p">.</span><span class="n">ApplyGuildBuffActiveStatValuesToPlayerStat</span><span class="p">();</span><span class="w"> </span><span class="c1">// 길드 버프</span>
+<span class="w">    </span><span class="n">AdBuffUtils</span><span class="p">.</span><span class="n">ApplyBuffValuesToPlayerStat</span><span class="p">();</span><span class="w">           </span><span class="c1">// 광고 버프</span>
+<span class="w">    </span><span class="n">EquipUtils</span><span class="p">.</span><span class="n">ApplyEquipValuesToPlayerStat</span><span class="p">();</span><span class="w">           </span><span class="c1">// 장비</span>
+<span class="w">    </span><span class="n">ArtifactUtils</span><span class="p">.</span><span class="n">ApplyEquipValuesToPlayerStat</span><span class="p">();</span><span class="w">        </span><span class="c1">// 법구</span>
+<span class="w">    </span><span class="n">BookUtils</span><span class="p">.</span><span class="n">ApplyBookValuesToPlayerStat</span><span class="p">();</span><span class="w">             </span><span class="c1">// 도감</span>
+<span class="w">    </span><span class="n">AltarUtils</span><span class="p">.</span><span class="n">ApplyAltarValuesToPlayerStat</span><span class="p">();</span><span class="w">           </span><span class="c1">// 영약</span>
+<span class="w">    </span><span class="n">GuardianStatUtils</span><span class="p">.</span><span class="n">ApplyStatValuesToPlayerStat</span><span class="p">();</span><span class="w">     </span><span class="c1">// 신수</span>
+<span class="w">    </span><span class="n">NeidanUtils</span><span class="p">.</span><span class="n">ApplyStatValuesToPlayerStat</span><span class="p">();</span><span class="w">           </span><span class="c1">// 내단</span>
+<span class="p">}</span>
+
+<span class="c1">// 3단계: 최종 계산 (고정값 + 비율 + 승수)</span>
+<span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="nf">ComputeAttack</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// 기본 공격력 (고정값)</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">baseAtk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_statDic</span><span class="p">[</span><span class="n">_statId_atk</span><span class="p">]</span>
+<span class="w">                   </span><span class="o">+</span><span class="w"> </span><span class="n">_statDic</span><span class="p">[</span><span class="n">_statId_atk_skin</span><span class="p">]</span>
+<span class="w">                   </span><span class="o">+</span><span class="w"> </span><span class="n">_statDic</span><span class="p">[</span><span class="n">_statId_atk_blood</span><span class="p">]</span>
+<span class="w">                   </span><span class="o">+</span><span class="w"> </span><span class="n">_statDic</span><span class="p">[</span><span class="n">_statId_atk_equip</span><span class="p">]</span>
+<span class="w">                   </span><span class="o">+</span><span class="w"> </span><span class="n">_statDic</span><span class="p">[</span><span class="n">_statId_atk_neidan</span><span class="p">];</span>
+
+<span class="w">    </span><span class="c1">// 공격력 증가율 (비율 합산)</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">atkRate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">                   </span><span class="o">+</span><span class="w"> </span><span class="n">_statDic</span><span class="p">[</span><span class="n">_statId_atkRate</span><span class="p">]</span>
+<span class="w">                   </span><span class="o">+</span><span class="w"> </span><span class="n">_statDic</span><span class="p">[</span><span class="n">_statId_atkRate_skin</span><span class="p">]</span>
+<span class="w">                   </span><span class="o">+</span><span class="w"> </span><span class="n">_statDic</span><span class="p">[</span><span class="n">_statId_atkRateEquip</span><span class="p">]</span>
+<span class="w">                   </span><span class="o">+</span><span class="w"> </span><span class="n">_statDic</span><span class="p">[</span><span class="n">_statId_atkRate_artifact</span><span class="p">]</span>
+<span class="w">                   </span><span class="o">+</span><span class="w"> </span><span class="n">_statDic</span><span class="p">[</span><span class="n">_statId_atkRate_altar</span><span class="p">]</span>
+<span class="w">                   </span><span class="o">+</span><span class="w"> </span><span class="n">_statDic</span><span class="p">[</span><span class="n">_statId_atkRate_blood</span><span class="p">]</span>
+<span class="w">                   </span><span class="o">+</span><span class="w"> </span><span class="n">_statDic</span><span class="p">[</span><span class="n">_statId_atkRate_neidan</span><span class="p">];</span>
+
+<span class="w">    </span><span class="c1">// 광고 버프 (승수)</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">atkRateAds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">_statDic</span><span class="p">[</span><span class="n">_statId_atkRateAds</span><span class="p">];</span>
+
+<span class="w">    </span><span class="c1">// 최종 계산: (기본값 × 비율) × 승수</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">baseAtk</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">atkRate</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">atkRateAds</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>설계 포인트:</strong><br />
+- 단일 딕셔너리 관리: 모든 스탯을 <code>_statDic</code>에 통합해서 확장에 유리하게 관리<br />
+- 3단계 계산: 고정값 → 비율 → 승수 순서로 적용</p>
+<hr />
+<h2 id="2-fsm">2. FSM 기반 전투 시스템 아키텍처</h2>
+<h3 id="_4">도전과제</h3>
+<p>플레이어 캐릭터는 10개 이상의 상태를 가지며, 각 상태 간 전이 조건이 복잡합니다:<br />
+- Idle, Move, Attack, Skill, Dash, Death, Spawn, ForceMove 등<br />
+- 상태별 애니메이션, 물리, 전투 로직 분리 필요<br />
+- 조이스틱 입력, 스킬 발동, 적 타겟팅 등 다양한 전이 조건</p>
+<p>if-else로 구현 시 스파게티 코드 발생 위험이 높습니다.</p>
+<h3 id="_5">해결방안</h3>
+<h4 id="21-fsm">2.1. FSM 라이브러리 도입</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">PlayerController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">CharacterController</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// FSM 인스턴스</span>
+<span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="n">StateMachine</span><span class="o">&lt;</span><span class="n">PlayerController</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stateMachine</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Awake</span><span class="p">()</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">base</span><span class="p">.</span><span class="n">Awake</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// FSM 초기화</span>
+<span class="w">        </span><span class="n">stateMachine</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Update</span><span class="p">()</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// FSM 업데이트 (현재 상태의 Update 호출)</span>
+<span class="w">        </span><span class="n">stateMachine</span><span class="p">.</span><span class="n">OnUpdate</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="22">2.2. 상태별 명확한 책임 분리</h4>
+<p>각 상태는 Enter, Update, Exit 메서드를 통해 독립적으로 동작합니다.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnIdleEnter</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// 애니메이션 속도 0으로 설정</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">animator</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">animator</span><span class="p">.</span><span class="n">SetFloat</span><span class="p">(</span><span class="n">AnimKeySpeed</span><span class="p">,</span><span class="w"> </span><span class="mf">0f</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 조이스틱 입력 즉시 반응</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">IsJoystickActivated</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">stateMachine</span><span class="p">.</span><span class="n">ChangeState</span><span class="p">(</span><span class="n">PlayerManualMove</span><span class="p">.</span><span class="n">Instance</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnIdleUpdate</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// 정지 상태 체크</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isStop</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">true</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 1순위: 조이스틱 입력 → 수동 이동</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">IsJoystickActivated</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">stateMachine</span><span class="p">.</span><span class="n">ChangeState</span><span class="p">(</span><span class="n">PlayerManualMove</span><span class="p">.</span><span class="n">Instance</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 2순위: 강제 이동</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">forceMoveRemainTime</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0.0f</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">stateMachine</span><span class="p">.</span><span class="n">ChangeState</span><span class="p">(</span><span class="n">PlayerForceMove</span><span class="p">.</span><span class="n">Instance</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 3순위: 스킬 사용 가능 체크</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">useMetaSkillInfo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">isShowSkillMotion</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">false</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">stateMachine</span><span class="p">.</span><span class="n">ChangeState</span><span class="p">(</span><span class="n">PlayerUseSkill</span><span class="p">.</span><span class="n">Instance</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 4순위: 적 타겟 발견 → 이동/공격</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">nearEnemy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FindNearestEnemy</span><span class="p">();</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nearEnemy</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">null</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">atkTarget</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nearEnemy</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// 대시 범위 내면 대시, 아니면 자동 이동</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">IsInDashRange</span><span class="p">(</span><span class="n">atkTarget</span><span class="p">))</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">stateMachine</span><span class="p">.</span><span class="n">ChangeState</span><span class="p">(</span><span class="n">PlayerDash</span><span class="p">.</span><span class="n">Instance</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">stateMachine</span><span class="p">.</span><span class="n">ChangeState</span><span class="p">(</span><span class="n">PlayerAutoMove</span><span class="p">.</span><span class="n">Instance</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>설계 장점:</strong><br />
+- 상태 전이 우선순위 명확화: 조이스틱 &gt; 강제이동 &gt; 스킬 &gt; 전투<br />
+- 디버깅 용이: 각 상태의 로직이 독립적<br />
+- 확장성: 새로운 상태 추가 시 기존 코드 수정 최소화</p>
+<hr />
+<h2 id="3">3. 네트워크 통신 안정성 및 보안 강화</h2>
+<h3 id="_6">도전과제</h3>
+<p>모바일 게임은 불안정한 네트워크 환경에서 동작해야 합니다:<br />
+- 지하철, 엘리베이터 등 신호 약한 환경<br />
+- 와이파이 ↔ 모바일 데이터 전환<br />
+- 타임아웃, 패킷 손실 빈번 발생</p>
+<p>또한 보안 요구사항도 충족해야 합니다:<br />
+- 통신 데이터 암호화<br />
+- 메모리 해킹 방지<br />
+- 디바이스 검증</p>
+<h3 id="_7">해결방안</h3>
+<h4 id="31">3.1. 재시도 메커니즘 구현</h4>
+<p>네트워크 실패 시 자동 재시도 로직을 구현했습니다.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">UniTask</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">SendRequest</span><span class="p">(</span>
+<span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">url</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">object</span><span class="w"> </span><span class="n">sendData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Action</span><span class="o">&lt;</span><span class="n">NetworkReturnObject</span><span class="o">&gt;</span><span class="w"> </span><span class="n">onFinished</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Action</span><span class="w"> </span><span class="n">onConnectFail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">debugLogUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">isShowIndicator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">tryCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">           </span><span class="c1">// 현재 시도 횟수</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">connectTrySecond</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">30f</span><span class="w"> </span><span class="c1">// 재시도 대기 시간</span>
+<span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">tryCount</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">isHideIndicator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">false</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">httpMethods</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sendData</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">HTTPMethods</span><span class="p">.</span><span class="n">Post</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">HTTPMethods</span><span class="p">.</span><span class="n">Get</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">baseUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetServerUrl</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HTTPRequest</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Uri</span><span class="p">(</span><span class="n">baseUrl</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">url</span><span class="p">),</span><span class="w"> </span><span class="n">httpMethods</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">httpMethods</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">HTTPMethods</span><span class="p">.</span><span class="n">Post</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 데이터 암호화 후 전송</span>
+<span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EncodeServerData</span><span class="p">(</span><span class="n">sendData</span><span class="p">);</span>
+<span class="w">        </span><span class="n">request</span><span class="p">.</span><span class="n">AddField</span><span class="p">(</span><span class="s">&quot;data&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">request</span><span class="p">.</span><span class="n">Timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeSpan</span><span class="p">.</span><span class="n">FromSeconds</span><span class="p">(</span><span class="mf">60f</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">try</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 로딩 인디케이터 표시</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isShowIndicator</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="k">await</span><span class="w"> </span><span class="n">IndicatorUtils</span><span class="p">.</span><span class="n">Create</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 요청 전송</span>
+<span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Send</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// 인디케이터 숨김</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isShowIndicator</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="k">await</span><span class="w"> </span><span class="n">IndicatorUtils</span><span class="p">.</span><span class="n">HideIndicator</span><span class="p">();</span>
+<span class="w">            </span><span class="n">isHideIndicator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 타임아웃 체크</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">IsTimedOut</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">Exception</span><span class="p">(</span><span class="s">&quot;TimeOut&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 요청 상태 체크</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">State</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">HTTPRequestStates</span><span class="p">.</span><span class="n">Aborted</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">Exception</span><span class="p">(</span><span class="s">&quot;Aborted&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">State</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">HTTPRequestStates</span><span class="p">.</span><span class="n">Error</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">Exception</span><span class="p">(</span><span class="s">&quot;Error&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 응답 데이터 복호화</span>
+<span class="w">        </span><span class="kt">string</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Response</span><span class="p">.</span><span class="n">DataAsText</span><span class="p">;</span>
+<span class="w">        </span><span class="n">request</span><span class="p">.</span><span class="n">Dispose</span><span class="p">();</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrEmpty</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">var</span><span class="w"> </span><span class="n">jsonData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DecodeServerData</span><span class="p">(</span><span class="n">result</span><span class="p">);</span><span class="w">  </span><span class="c1">// 암호화 해제</span>
+<span class="w">            </span><span class="kt">var</span><span class="w"> </span><span class="n">NRO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NetworkReturnObject</span><span class="p">(</span><span class="n">jsonData</span><span class="p">);</span>
+<span class="w">            </span><span class="n">onFinished</span><span class="o">?.</span><span class="n">Invoke</span><span class="p">(</span><span class="n">NRO</span><span class="p">);</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">NRO</span><span class="p">.</span><span class="n">isSuccess</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">e</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">request</span><span class="o">?.</span><span class="n">Dispose</span><span class="p">();</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">isHideIndicator</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="k">await</span><span class="w"> </span><span class="n">IndicatorUtils</span><span class="p">.</span><span class="n">HideIndicator</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 최대 재시도 횟수 도달 시</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MAX_TRY_COUNT</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">tryCount</span><span class="p">)</span><span class="w">  </span><span class="c1">// MAX_TRY_COUNT = 3</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">DebugUtils</span><span class="p">.</span><span class="n">LogError</span><span class="p">(</span><span class="s">$&quot;requestUrl : {url}\nErrorMessage : {e}&quot;</span><span class="p">);</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">onConnectFail</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">null</span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// 기본 실패 처리: 연결 실패 팝업</span>
+<span class="w">                </span><span class="n">Time</span><span class="p">.</span><span class="n">timeScale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">                </span><span class="n">ConfirmPopup</span><span class="p">.</span><span class="n">CreatePopup</span><span class="p">(</span>
+<span class="w">                    </span><span class="s">&quot;commonConnectFailDesc&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">Application</span><span class="p">.</span><span class="n">Quit</span><span class="p">,</span>
+<span class="w">                    </span><span class="k">null</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">UIUtils</span><span class="p">.</span><span class="n">DEPTH_70</span>
+<span class="w">                </span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="n">onConnectFail</span><span class="o">?.</span><span class="n">Invoke</span><span class="p">();</span>
+<span class="w">            </span><span class="p">}</span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">false</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 재시도 대기</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isShowIndicator</span><span class="p">)</span>
+<span class="w">            </span><span class="k">await</span><span class="w"> </span><span class="n">IndicatorUtils</span><span class="p">.</span><span class="n">Create</span><span class="p">();</span>
+
+<span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">UniTask</span><span class="p">.</span><span class="n">Delay</span><span class="p">(</span><span class="n">TimeSpan</span><span class="p">.</span><span class="n">FromSeconds</span><span class="p">(</span><span class="n">connectTrySecond</span><span class="p">),</span><span class="w"> </span><span class="k">true</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isShowIndicator</span><span class="p">)</span>
+<span class="w">            </span><span class="k">await</span><span class="w"> </span><span class="n">IndicatorUtils</span><span class="p">.</span><span class="n">HideIndicator</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// 재귀 호출로 재시도 (tryCount 증가)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nf">SendRequest</span><span class="p">(</span>
+<span class="w">            </span><span class="n">url</span><span class="p">,</span>
+<span class="w">            </span><span class="n">sendData</span><span class="p">,</span>
+<span class="w">            </span><span class="n">onFinished</span><span class="p">,</span>
+<span class="w">            </span><span class="n">onConnectFail</span><span class="p">,</span>
+<span class="w">            </span><span class="n">debugLogUrl</span><span class="p">,</span>
+<span class="w">            </span><span class="k">true</span><span class="p">,</span>
+<span class="w">            </span><span class="n">tryCount</span><span class="p">,</span><span class="w">  </span><span class="c1">// 증가된 tryCount 전달</span>
+<span class="w">            </span><span class="n">connectTrySecond</span>
+<span class="w">        </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>효과:</strong><br />
+- 일시적 네트워크 끊김 자동 복구<br />
+- 사용자 경험 개선 (수동 재시도 불필요)</p>
+<h4 id="32">3.2. 데이터 암호화 및 보안 강화</h4>
+<p>통신 데이터를 암호화하여 패킷 스니핑을 방지했습니다.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">JsonData</span><span class="w"> </span><span class="nf">DecodeServerData</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">result</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// 커스텀 암호화 라이브러리 사용</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">JsonUtils</span><span class="p">.</span><span class="n">JsonDecode</span><span class="p">(</span>
+<span class="w">        </span><span class="n">DhCrypto</span><span class="p">.</span><span class="n">DecryptData</span><span class="p">(</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="k">false</span><span class="p">)</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">EncodeServerData</span><span class="p">(</span><span class="kt">object</span><span class="w"> </span><span class="k">value</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// JSON 직렬화 후 암호화</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">DhCrypto</span><span class="p">.</span><span class="n">EncryptData</span><span class="p">(</span>
+<span class="w">        </span><span class="n">JsonUtils</span><span class="p">.</span><span class="n">JsonEncode</span><span class="p">(</span><span class="k">value</span><span class="p">),</span>
+<span class="w">        </span><span class="k">false</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">NetworkAPI</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">JsonData</span><span class="w"> </span><span class="n">getTableData</span><span class="p">;</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">playerId</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// ObscuredInt로 메모리 해킹 방지</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">ObscuredInt</span><span class="w"> </span><span class="n">token</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">GetDeviceId</span><span class="p">()</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 디바이스 고유 ID로 검증</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">SystemInfo</span><span class="p">.</span><span class="n">deviceUniqueIdentifier</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>보안 기능:</strong><br />
+- <strong>DhCrypto:</strong> 커스텀 암호화로 통신 데이터 보호<br />
+- <strong>ObscuredTypes:</strong> 메모리 상 토큰 값 난독화 (메모리 에디터 방지)<br />
+- <strong>디바이스 검증:</strong> deviceUniqueIdentifier로 다중 계정 접속 차단</p>
+<hr />
+<h2 id="4">4. 대규모 코드베이스 관리 전략</h2>
+<h3 id="_8">도전과제</h3>
+<p>프로젝트 규모가 커지면서 다음 문제에 직면했습니다:<br />
+- 936개 C# 스크립트 관리<br />
+- 370개 이상의 Utils/Manager/Info 클래스<br />
+- 코드 중복 및 의존성 복잡도 증가<br />
+- 신규 기능 추가 시 영향 범위 예측 어려움<br />
+- 80개 이상의 서버 데이터 테이블 동기화 관리</p>
+<h3 id="_9">해결방안</h3>
+<h4 id="41-manager-utils-info-3">4.1. Manager-Utils-Info 3계층 아키텍처</h4>
+<p>명확한 책임 분리로 코드 구조를 체계화했습니다.</p>
+<p><strong>아키텍처 구조:</strong></p>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────┐
+│           Manager Layer (싱글톤)              │
+│  - 게임 전역 상태 관리                         │
+│  - 생명주기 관리 (Init, Update, Destroy)      │
+│  - 예: StageManager, IAPManager              │
+└─────────────────────────────────────────────┘
+                    ↓ 호출
+┌─────────────────────────────────────────────┐
+│           Utils Layer (정적 메서드)            │
+│  - 비즈니스 로직 구현                          │
+│  - 순수 함수 중심 (상태 없음)                  │
+│  - 예: SkillUtils, EquipUtils                │
+└─────────────────────────────────────────────┘
+                    ↓ 참조
+┌─────────────────────────────────────────────┐
+│           Info Layer (데이터)                 │
+│  - MetaInfo: 게임 설정 데이터 (읽기 전용)      │
+│  - ServerInfo: 플레이어 진행 데이터 (서버 동기화)│
+│  - 예: MetaSkillInfo, SkillInfoManager       │
+└─────────────────────────────────────────────┘
+</code></pre></div>
+
+<p><strong>코드 예제:</strong> <code>SkillUtils.cs:10-19</code></p>
+<div class="codehilite"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">SkillUtils</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// MetaInfo 참조 (게임 설정 데이터)</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">MetaSkillInfo</span><span class="o">&gt;</span><span class="w"> </span><span class="n">MetaInfos</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">MetaInfoManager</span><span class="p">.</span><span class="n">metaSkillInfos</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// ServerInfo 참조 (플레이어 데이터)</span>
+<span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">SkillInfo</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ServerInfos</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">SkillInfoManager</span><span class="p">.</span><span class="n">Instance</span><span class="p">.</span><span class="n">CurrServerInfos</span><span class="p">;</span>
+<span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">SkillEquipInfo</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ServerEquipInfos</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">SkillEquipInfoManager</span><span class="p">.</span><span class="n">Instance</span><span class="p">.</span><span class="n">CurrServerInfos</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 비즈니스 로직: 스킬 추가</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">AddAmount</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">dataId</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">amount</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">metaInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FindMetaInfo</span><span class="p">(</span><span class="n">dataId</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">metaInfo</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">null</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">DebugUtils</span><span class="p">.</span><span class="n">LogError</span><span class="p">(</span><span class="s">$&quot;metaInfo 찾기 실패, dataId = {dataId}&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="k">return</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">IsOwn</span><span class="p">(</span><span class="n">metaInfo</span><span class="p">.</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">false</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// 새 스킬 생성</span>
+<span class="w">            </span><span class="kt">var</span><span class="w"> </span><span class="n">newSkillInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SkillInfo</span><span class="p">(</span><span class="n">metaInfo</span><span class="p">.</span><span class="n">id</span><span class="p">);</span>
+<span class="w">            </span><span class="n">ServerInfos</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">metaInfo</span><span class="p">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">newSkillInfo</span><span class="p">);</span>
+<span class="w">            </span><span class="n">newSkillInfo</span><span class="p">.</span><span class="n">amount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">amount</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">            </span><span class="n">newSkillInfo</span><span class="p">.</span><span class="n">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">            </span><span class="n">newSkillInfo</span><span class="p">.</span><span class="n">awakenLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// 기존 스킬 수량 증가</span>
+<span class="w">            </span><span class="n">ServerInfos</span><span class="p">[</span><span class="n">metaInfo</span><span class="p">.</span><span class="n">id</span><span class="p">].</span><span class="n">amount</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">amount</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 이벤트 발행 (UI 갱신)</span>
+<span class="w">        </span><span class="n">EventUtils</span><span class="p">.</span><span class="n">TriggerEventListenerEndOfFrame</span><span class="p">(</span>
+<span class="w">            </span><span class="n">EventName</span><span class="p">.</span><span class="n">RefreshSkillInfo</span><span class="p">,</span>
+<span class="w">            </span><span class="n">metaInfo</span><span class="p">.</span><span class="n">id</span>
+<span class="w">        </span><span class="p">);</span>
+<span class="w">        </span><span class="n">EventUtils</span><span class="p">.</span><span class="n">TriggerEventListenerEndOfFrame</span><span class="p">(</span>
+<span class="w">            </span><span class="n">EventName</span><span class="p">.</span><span class="n">RefreshSkillRedDots</span>
+<span class="w">        </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>효과:</strong><br />
+- 단일 책임 원칙 준수<br />
+- 테스트 용이성: Utils는 순수 함수로 단위 테스트 가능<br />
+- 의존성 명확화: Info ← Utils ← Manager 단방향 의존</p>
+<h4 id="42-linqgen-linq">4.2. LinqGen을 활용한 LINQ 최적화</h4>
+<p>대규모 컬렉션 처리에서 LINQ의 GC 할당을 제거했습니다.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="nn">Cathei.LinqGen</span><span class="p">;</span><span class="w">  </span><span class="c1">// LinqGen 라이브러리</span>
+
+<span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">MetaEquipmentInfo</span><span class="o">&gt;</span><span class="w"> </span><span class="n">FindEquipmentInfos</span><span class="p">(</span><span class="n">EquipType</span><span class="w"> </span><span class="n">equipType</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MetaEquipmentInfoDictionary</span><span class="p">.</span><span class="n">TryGetValue</span><span class="p">(</span><span class="n">equipType</span><span class="p">,</span><span class="w"> </span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="k">value</span><span class="p">))</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">value</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 기존 LINQ: 할당 발생</span>
+<span class="w">    </span><span class="c1">// var result = MetaEquipmentInfos.Where(x =&gt; x.type == equipType).ToList();</span>
+
+<span class="w">    </span><span class="c1">// LinqGen: Zero Allocation</span>
+<span class="w">    </span><span class="n">MetaEquipmentInfoDictionary</span><span class="p">.</span><span class="n">TryAdd</span><span class="p">(</span>
+<span class="w">        </span><span class="n">equipType</span><span class="p">,</span>
+<span class="w">        </span><span class="n">MetaEquipmentInfos</span><span class="p">.</span><span class="n">Gen</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">equipType</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="n">ToList</span><span class="p">()</span>
+<span class="w">    </span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">MetaEquipmentInfoDictionary</span><span class="p">[</span><span class="n">equipType</span><span class="p">];</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="43-zstring">4.3. ZString을 활용한 문자열 최적화</h4>
+<p>UI 텍스트 갱신 시 문자열 할당 제거로 GC 압력을 줄였습니다.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="nn">Cysharp.Text</span><span class="p">;</span><span class="w">  </span><span class="c1">// ZString 라이브러리</span>
+
+<span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">GetSkillLevelText</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">skillId</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetLevel</span><span class="p">(</span><span class="n">skillId</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// 기존 방식: 할당 발생</span>
+<span class="w">    </span><span class="c1">// return $&quot;Lv.{level}&quot;;</span>
+
+<span class="w">    </span><span class="c1">// ZString: Zero Allocation</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ZString</span><span class="p">.</span><span class="n">Format</span><span class="p">(</span><span class="s">&quot;Lv.{0}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">level</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">GetStatText</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="k">value</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// 기존: string.Format → 할당</span>
+<span class="w">    </span><span class="c1">// return string.Format(&quot;{0:N0}&quot;, value);</span>
+
+<span class="w">    </span><span class="c1">// ZString: 할당 없음</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">sb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ZString</span><span class="p">.</span><span class="n">CreateStringBuilder</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">sb</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="k">value</span><span class="p">.</span><span class="n">ToString</span><span class="p">(</span><span class="s">&quot;N0&quot;</span><span class="p">));</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">sb</span><span class="p">.</span><span class="n">ToString</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>효과:</strong><br />
+- GC가 발생하지 않음<br />
+- 문자열 연산이 많은 방치형 게임에 필수</p>
+<h4 id="44">4.4. 변경 데이터 자동 감지 및 동기화 시스템</h4>
+<p>80개 이상의 서버 데이터 테이블을 효율적으로 관리하기 위한 자동 동기화 시스템을 설계했습니다.</p>
+<p><strong>도전과제:</strong><br />
+- 80개 이상의 ServerInfo (플레이어 데이터) 관리<br />
+- 매번 모든 데이터를 서버로 전송하면 네트워크 부하 증가<br />
+- 어떤 데이터가 변경되었는지 수동 추적 시 휴먼 에러 발생</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// ServerInfo 베이스 클래스</span>
+<span class="k">public</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ServerInfo</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">isChangedValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">false</span><span class="p">;</span><span class="w">  </span><span class="c1">// 변경 플래그</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetServerData</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="c1">// SkillInfo: ReactiveProperty로 자동 변경 감지</span>
+<span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">SkillInfo</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ServerInfo</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="n">ReactiveProperty</span><span class="o">&lt;</span><span class="n">ObscuredDouble</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Amount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="n">ReactiveProperty</span><span class="o">&lt;</span><span class="n">ObscuredInt</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="n">ReactiveProperty</span><span class="o">&lt;</span><span class="n">ObscuredInt</span><span class="o">&gt;</span><span class="w"> </span><span class="n">AwakenLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">SkillInfo</span><span class="p">(</span><span class="n">JsonData</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">skillId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">GetInt</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">skillId</span><span class="p">));</span>
+<span class="w">        </span><span class="n">amount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">GetDouble</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">amount</span><span class="p">));</span>
+<span class="w">        </span><span class="n">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">GetInt</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">level</span><span class="p">));</span>
+<span class="w">        </span><span class="n">awakenLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">GetInt</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">awakenLevel</span><span class="p">));</span>
+
+<span class="w">        </span><span class="c1">// 값 변경 시 자동으로 isChangedValue = true</span>
+<span class="w">        </span><span class="n">Amount</span><span class="p">.</span><span class="n">Skip</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Subscribe</span><span class="p">(</span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">isChangedValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Level</span><span class="p">.</span><span class="n">Skip</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Subscribe</span><span class="p">(</span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">isChangedValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">);</span>
+<span class="w">        </span><span class="n">AwakenLevel</span><span class="p">.</span><span class="n">Skip</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Subscribe</span><span class="p">(</span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">isChangedValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetServerData</span><span class="p">()</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">isChangedValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">false</span><span class="p">;</span><span class="w">  </span><span class="c1">// 전송 후 플래그 리셋</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">new</span><span class="p">()</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="k">nameof</span><span class="p">(</span><span class="n">skillId</span><span class="p">),</span><span class="w"> </span><span class="n">skillId</span><span class="w"> </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="k">nameof</span><span class="p">(</span><span class="n">amount</span><span class="p">),</span><span class="w"> </span><span class="n">amount</span><span class="p">.</span><span class="n">GetDecrypted</span><span class="p">()</span><span class="w"> </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="k">nameof</span><span class="p">(</span><span class="n">level</span><span class="p">),</span><span class="w"> </span><span class="n">level</span><span class="p">.</span><span class="n">GetDecrypted</span><span class="p">()</span><span class="w"> </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="k">nameof</span><span class="p">(</span><span class="n">awakenLevel</span><span class="p">),</span><span class="w"> </span><span class="n">awakenLevel</span><span class="p">.</span><span class="n">GetDecrypted</span><span class="p">()</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// SkillInfoManager: 변경된 것만 필터링</span>
+<span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">SkillInfoManager</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ServerManager</span><span class="o">&lt;</span><span class="n">SkillInfoManager</span><span class="p">,</span><span class="w"> </span><span class="n">SkillInfo</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">GetTableName</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&quot;User_SkillInfo&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">object</span><span class="w"> </span><span class="nf">GetServerDatas</span><span class="p">()</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// isChangedValue가 true인 것만 필터링</span>
+<span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">serverData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currServerInfos</span>
+<span class="w">            </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">Value</span><span class="p">.</span><span class="n">isChangedValue</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">Value</span><span class="p">.</span><span class="n">GetServerData</span><span class="p">()).</span><span class="n">ToList</span><span class="p">();</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">serverData</span><span class="p">.</span><span class="n">Count</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">null</span><span class="p">;</span><span class="w">  </span><span class="c1">// 변경 없으면 null 반환 (서버 전송 안 함)</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="kt">object</span><span class="p">,</span><span class="w"> </span><span class="kt">object</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;playerId&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">NetworkAPI</span><span class="p">.</span><span class="n">playerId</span><span class="w"> </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;serverData&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">serverData</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// ServerManager: 자동 등록</span>
+<span class="k">public</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ServerManager</span><span class="o">&lt;</span><span class="n">TServerManager</span><span class="p">,</span><span class="w"> </span><span class="n">TServerInfo</span><span class="o">&gt;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">SingletonMonoBehaviour</span><span class="o">&lt;</span><span class="n">TServerManager</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Awake</span><span class="p">()</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">base</span><span class="p">.</span><span class="n">Awake</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// 초기화 시 자동으로 ServerSaveUtils에 등록</span>
+<span class="w">        </span><span class="n">ServerSaveUtils</span><span class="p">.</span><span class="n">AddTableName</span><span class="p">(</span><span class="n">GetTableName</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ServerSaveUtils</span><span class="p">.</span><span class="n">AddGetServerData</span><span class="p">(</span><span class="n">GetServerDatas</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// ServerSaveUtils: 중앙 관리</span>
+<span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ServerSaveUtils</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Func</span><span class="o">&lt;</span><span class="kt">object</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">callbackGetServerData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">AddGetServerData</span><span class="p">(</span><span class="n">Func</span><span class="o">&lt;</span><span class="kt">object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">callbackGetServerData</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+<span class="w">            </span><span class="k">return</span><span class="p">;</span>
+<span class="w">        </span><span class="n">callbackGetServerData</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">UpdateServerInfos</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">url_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">url_common</span><span class="p">,</span>
+<span class="w">        </span><span class="n">Action</span><span class="o">&lt;</span><span class="n">NetworkReturnObject</span><span class="o">&gt;</span><span class="w"> </span><span class="n">onSuccess</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">serverDataDictionary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">object</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// 등록된 모든 Manager의 GetServerDatas 호출</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">callbackGetServerData</span><span class="p">.</span><span class="n">Count</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">var</span><span class="w"> </span><span class="n">serverData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">callbackGetServerData</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">?.</span><span class="n">Invoke</span><span class="p">();</span>
+
+<span class="w">            </span><span class="c1">// null이 아닌 것만 추가 (변경된 데이터만)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">serverData</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">null</span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="n">serverDataDictionary</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">tableNames</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">serverData</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 변경된 테이블만 서버로 전송</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">serverDataDictionary</span><span class="p">.</span><span class="n">Count</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="k">await</span><span class="w"> </span><span class="n">NetworkAPI</span><span class="p">.</span><span class="n">UpdateServerInfos</span><span class="p">(</span><span class="n">url_name</span><span class="p">,</span><span class="w"> </span><span class="n">serverDataDictionary</span><span class="p">,</span><span class="w"> </span><span class="n">onSuccess</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 사용 예시</span>
+<span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">AddAmount</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">dataId</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">amount</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">metaInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FindMetaInfo</span><span class="p">(</span><span class="n">dataId</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">IsOwn</span><span class="p">(</span><span class="n">metaInfo</span><span class="p">.</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">false</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">newSkillInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SkillInfo</span><span class="p">(</span><span class="n">metaInfo</span><span class="p">.</span><span class="n">id</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ServerInfos</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">metaInfo</span><span class="p">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">newSkillInfo</span><span class="p">);</span>
+<span class="w">        </span><span class="n">newSkillInfo</span><span class="p">.</span><span class="n">amount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">amount</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">  </span><span class="c1">// 이 시점에 isChangedValue = true</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">ServerInfos</span><span class="p">[</span><span class="n">metaInfo</span><span class="p">.</span><span class="n">id</span><span class="p">].</span><span class="n">amount</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">amount</span><span class="p">;</span><span class="w">  </span><span class="c1">// 이 시점에 isChangedValue = true</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 변경된 SkillInfo만 자동으로 서버에 전송됨</span>
+<span class="w">    </span><span class="n">ServerSaveUtils</span><span class="p">.</span><span class="n">UpdateServerInfos</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>설계 장점:</strong><br />
+- 자동 변경 감지: ReactiveProperty + Subscribe 패턴으로 변경 시 자동 플래그 설정<br />
+- 선택적 전송: isChangedValue가 true인 데이터만 서버로 전송<br />
+- 중앙 관리: ServerSaveUtils가 모든 Manager를 통합 관리<br />
+- 확장 용이: 새 테이블 추가 시 ServerManager만 상속하면 자동 등록</p>
+<p><strong>효과:</strong><br />
+- 네트워크 트래픽: 전체 데이터 전송 대비 90% 이상 감소<br />
+- 개발 생산성: 수동 추적 불필요, 휴먼 에러 제거<br />
+- 80개 이상 테이블 일관된 방식으로 관리</p>
+<hr />
+<h2 id="_10">요약</h2>
+<h3 id="1_1">1. 아키텍처 설계 능력</h3>
+<ul>
+<li>Manager-Utils-Info 3계층 구조로 1000여개 스크립트 체계적 관리</li>
+<li>FSM 패턴으로 복잡한 게임 상태 명확하게 분리</li>
+<li>캐싱 기반 StatCalculator 패턴으로 성능 최적화</li>
+</ul>
+<h3 id="2">2. 성능 최적화 전문성</h3>
+<ul>
+<li>LinqGen, ZString 등 최신 라이브러리 활용으로 GC 최소화</li>
+<li>Addressables 기반 메모리 관리</li>
+</ul>
+<h3 id="3_1">3. 네트워크 안정성 구현</h3>
+<ul>
+<li>재시도 메커니즘으로 네트워크 성공률 상승</li>
+<li>암호화 통신 + Anti-Cheat Toolkit으로 보안 강화</li>
+<li>멀티 서버 환경 지원 (한국/글로벌)</li>
+</ul>
+<h3 id="4_1">4. 대규모 시스템 개발 경험</h3>
+<ul>
+<li>100개 이상 스탯 계산 시스템</li>
+<li>15개 이상 게임 시스템 통합</li>
+<li>80개 이상 서버 테이블 자동 동기화 시스템</li>
+</ul>
+<h3 id="5-c">5. 모던 C# 활용 역량</h3>
+<ul>
+<li>UniTask 비동기 처리</li>
+<li>CancellationToken 생명주기 관리</li>
+<li>ReactiveProperty로 자동 변경 감지</li>
+<li>Func<T> 델리게이트 기반 콜백 시스템</li>
+</ul>
+</body>
+</html>

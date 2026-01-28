@@ -1,8 +1,26 @@
 # K 데몬헌터 키우기 - 기술 포트폴리오
 
-**프로젝트:** K 데몬헌터 키우기 (모바일 방치형 액션 RPG)
-**개발 환경:** Unity 6000.0,63 C# .NET
-**플랫폼:** Android / iOS
+## 프로젝트 요약
+
+| 항목 | 내용 |
+|------|------|
+| **장르** | 모바일 방치형 액션 RPG (라이브 서비스) |
+| **역할** | 클라이언트 메인 프로그래머 |
+| **개발 환경** | Unity 6000.0.63, C# .NET |
+| **플랫폼** | Android / iOS |
+
+### 프로젝트 규모
+- C# 스크립트 **936개**
+- 서버 데이터 테이블 **80+**
+- 스탯 ID **100+**, 연동 시스템 **15개**
+
+### 핵심 기여
+| 영역 | 성과 |
+|------|------|
+| **스탯 시스템** | Dirty Flag 캐싱으로 프레임당 재계산 **수백 회 → 0~10회** |
+| **전투 아키텍처** | FSM 기반 상태 관리로 10+ 상태 간 전이 체계화 |
+| **서버 동기화** | 변경 데이터 자동 감지/선별 전송으로 네트워크 트래픽 **90%+ 감소** |
+| **GC 최적화** | LinqGen, ZString 적용으로 Zero Allocation 달성 |
 
 ---
 
@@ -17,21 +35,22 @@
 
 ## 1. 복잡한 스탯 시스템 설계와 성능 최적화
 
-### 도전과제
+### 결과
+- 프레임당 스탯 재계산: **수백 회 → 0~10회**
+- 100+ 스탯 ID, 15개 시스템 통합 관리
+- 신규 시스템 추가 시 기존 코드 수정 최소화
 
-모바일 방치형 RPG의 핵심은 복잡한 스탯 계산입니다. 본 프로젝트에서는:
-- 100개 이상의 스탯 ID 관리
-- 15개 이상의 시스템에서 스탯 적용 (장비, 스킬, 펫, 코스튬, 길드버프, 도감, 영약 등)
-- 다층 계산 구조 (고정값 → 비율 → 승수)
-- 실시간 계산 요구 (프레임마다 공격력, HP, 크리티컬 계산)
+### 핵심 설계
+- **Dirty Flag 기반 StatCalculator 패턴**: 이벤트 발생 시에만 재계산
+- **단일 Dictionary 기반 다층 스탯 집계**: 고정값 → 비율 → 승수 순서 적용
+- **이벤트 기반 트리거**: 스탯 변경 이벤트 구독으로 불필요한 계산 제거
 
-이를 단순하게 구현하면 프레임당 수백 번의 계산이 발생하여 성능 저하가 불가피합니다.
+### 설계 배경
+15개 시스템(장비, 스킬, 펫, 코스튬, 길드버프, 도감, 영약 등)에서 100+ 스탯을 실시간으로 계산해야 했습니다. 단순 구현 시 프레임마다 전체 재계산이 발생하여 성능 저하가 불가피했고, 이를 해결하기 위해 캐싱 기반 지연 계산 패턴을 도입했습니다.
 
-### 해결방안
+### 구현 상세
 
-#### 1.1. StatCalculator 패턴 도입
-
-캐싱 기반 지연 계산 패턴을 설계하여 불필요한 재계산을 방지했습니다.
+#### 1.1. StatCalculator 패턴
 
 ```csharp
 public class StatCalculator
@@ -71,13 +90,7 @@ public static StatCalculator Attack = new( () => ComputeAttack(), new List<Event
 public static StatCalculator HP = new( () => ComputeHP(), new List<EventName> { EventName.RefreshStat } );
 ```
 
-**효과:**
-- 프레임당 재계산 횟수: 수백 회 → 0~10회
-- 스탯 변경 이벤트 발생 시에만 재계산
-
 #### 1.2. 다층 스탯 집계 시스템
-
-15개 시스템의 스탯을 효율적으로 집계하는 구조를 설계했습니다.
 
 ```csharp
 public static void ApplyTotalStats()
@@ -135,26 +148,28 @@ private static double ComputeAttack()
 }
 ```
 
-**설계 포인트:**
-- 단일 딕셔너리 관리: 모든 스탯을 `_statDic`에 통합해서 확장에 유리하게 관리
-- 3단계 계산: 고정값 → 비율 → 승수 순서로 적용
+**트레이드오프:**
+- 이벤트 기반 설계로 즉시 계산 대비 약간의 지연 발생 가능 → 프레임 끝에 일괄 처리로 해결
+- Dictionary 기반으로 타입 안전성 일부 포기 → IDE 자동완성과 상수 정의로 보완
 
 ---
 
 ## 2. FSM 기반 전투 시스템 아키텍처
 
-### 도전과제
+### 결과
+- 10+ 상태(Idle, Move, Attack, Skill, Dash, Death 등) 명확히 분리
+- 상태 전이 우선순위 체계화: 조이스틱 > 강제이동 > 스킬 > 전투
+- 신규 상태 추가 시 기존 코드 수정 없이 확장 가능
 
-플레이어 캐릭터는 10개 이상의 상태를 가지며, 각 상태 간 전이 조건이 복잡합니다:
-- Idle, Move, Attack, Skill, Dash, Death, Spawn, ForceMove 등
-- 상태별 애니메이션, 물리, 전투 로직 분리 필요
-- 조이스틱 입력, 스킬 발동, 적 타겟팅 등 다양한 전이 조건
+### 핵심 설계
+- **FSM 패턴**: 상태별 Enter/Update/Exit로 책임 분리
+- **우선순위 기반 전이**: 입력 → 강제이동 → 스킬 → 자동 전투 순서
+- **싱글톤 상태 인스턴스**: 메모리 효율성 확보
 
-if-else로 구현 시 스파게티 코드 발생 위험이 높습니다.
+### 설계 배경
+플레이어 캐릭터의 상태(Idle, Move, Attack, Skill, Dash, Death, Spawn, ForceMove 등)가 10개 이상이고, 각 상태 간 전이 조건이 복잡했습니다. if-else 체인으로 구현 시 스파게티 코드가 되어 유지보수가 어려워지는 문제를 FSM 패턴으로 해결했습니다.
 
-### 해결방안
-
-#### 2.1. FSM 라이브러리 도입
+### 구현 상세
 
 ```csharp
 public class PlayerController : CharacterController
@@ -246,32 +261,30 @@ public void OnIdleUpdate()
 }
 ```
 
-**설계 장점:**
-- 상태 전이 우선순위 명확화: 조이스틱 > 강제이동 > 스킬 > 전투
-- 디버깅 용이: 각 상태의 로직이 독립적
-- 확장성: 새로운 상태 추가 시 기존 코드 수정 최소화
+**트레이드오프:**
+- 상태 클래스 증가로 파일 수 증가 → 명확한 네이밍 규칙으로 관리
+- 상태 간 공유 데이터 접근 복잡도 → Controller에 공유 데이터 집중
 
 ---
 
 ## 3. 네트워크 통신 안정성 및 보안 강화
 
-### 도전과제
+### 결과
+- 재시도 메커니즘으로 일시적 네트워크 끊김 자동 복구
+- 암호화 통신 + 메모리 난독화로 보안 강화
+- 사용자 경험 개선 (수동 재시도 불필요)
 
-모바일 게임은 불안정한 네트워크 환경에서 동작해야 합니다:
-- 지하철, 엘리베이터 등 신호 약한 환경
-- 와이파이 ↔ 모바일 데이터 전환
-- 타임아웃, 패킷 손실 빈번 발생
+### 핵심 설계
+- **3회 자동 재시도**: 타임아웃/에러 시 30초 대기 후 재시도
+- **DhCrypto 암호화**: 요청/응답 데이터 암호화
+- **ObscuredTypes**: 메모리상 민감 데이터 난독화
 
-또한 보안 요구사항도 충족해야 합니다:
-- 통신 데이터 암호화
-- 메모리 해킹 방지
-- 디바이스 검증
+### 설계 배경
+모바일 환경(지하철, 엘리베이터, 와이파이↔데이터 전환)에서 네트워크 불안정이 빈번했습니다. 또한 패킷 스니핑과 메모리 해킹에 대한 보안 요구사항이 있었습니다.
 
-### 해결방안
+### 구현 상세
 
-#### 3.1. 재시도 메커니즘 구현
-
-네트워크 실패 시 자동 재시도 로직을 구현했습니다.
+#### 3.1. 재시도 메커니즘
 
 ```csharp
 public static async UniTask<bool> SendRequest(
@@ -407,13 +420,7 @@ public static async UniTask<bool> SendRequest(
 }
 ```
 
-**효과:**
-- 일시적 네트워크 끊김 자동 복구
-- 사용자 경험 개선 (수동 재시도 불필요)
-
-#### 3.2. 데이터 암호화 및 보안 강화
-
-통신 데이터를 암호화하여 패킷 스니핑을 방지했습니다.
+#### 3.2. 데이터 암호화 및 보안
 
 ```csharp
 public static JsonData DecodeServerData(string result)
@@ -451,29 +458,30 @@ public static class NetworkAPI
 }
 ```
 
-**보안 기능:**
-- **DhCrypto:** 커스텀 암호화로 통신 데이터 보호
-- **ObscuredTypes:** 메모리 상 토큰 값 난독화 (메모리 에디터 방지)
-- **디바이스 검증:** deviceUniqueIdentifier로 다중 계정 접속 차단
+**트레이드오프:**
+- 재시도 대기 시간(30초)이 UX에 영향 → 로딩 인디케이터로 사용자에게 상태 전달
+- 암호화 오버헤드 → 모바일 환경에서 무시할 수준의 지연
 
 ---
 
 ## 4. 대규모 코드베이스 관리 전략
 
-### 도전과제
+### 결과
+- 936개 스크립트, 370+ Utils/Manager/Info 클래스 체계적 관리
+- 80+ 서버 테이블 자동 동기화로 네트워크 트래픽 **90%+ 감소**
+- GC Zero Allocation 달성 (LinqGen, ZString)
 
-프로젝트 규모가 커지면서 다음 문제에 직면했습니다:
-- 936개 C# 스크립트 관리
-- 370개 이상의 Utils/Manager/Info 클래스
-- 코드 중복 및 의존성 복잡도 증가
-- 신규 기능 추가 시 영향 범위 예측 어려움
-- 80개 이상의 서버 데이터 테이블 동기화 관리
+### 핵심 설계
+- **Manager-Utils-Info 3계층**: 단방향 의존성으로 복잡도 관리
+- **ReactiveProperty 변경 감지**: 수동 추적 없이 자동 Dirty Flag
+- **LinqGen/ZString**: LINQ, 문자열 연산의 GC 제거
 
-### 해결방안
+### 설계 배경
+936개 스크립트와 80+ 서버 테이블을 관리하면서 코드 중복, 의존성 복잡도, 네트워크 비효율 문제가 발생했습니다. 명확한 계층 분리와 자동화된 변경 감지 시스템으로 해결했습니다.
+
+### 구현 상세
 
 #### 4.1. Manager-Utils-Info 3계층 아키텍처
-
-명확한 책임 분리로 코드 구조를 체계화했습니다.
 
 **아키텍처 구조:**
 
@@ -549,14 +557,11 @@ public static class SkillUtils
 }
 ```
 
-**효과:**
-- 단일 책임 원칙 준수
-- 테스트 용이성: Utils는 순수 함수로 단위 테스트 가능
-- 의존성 명확화: Info ← Utils ← Manager 단방향 의존
+**설계 장점:**
+- 단일 책임 원칙 준수, 의존성 명확화 (Info ← Utils ← Manager)
+- Utils는 순수 함수로 단위 테스트 용이
 
-#### 4.2. LinqGen을 활용한 LINQ 최적화
-
-대규모 컬렉션 처리에서 LINQ의 GC 할당을 제거했습니다.
+#### 4.2. LinqGen/ZString GC 최적화
 
 ```csharp
 using Cathei.LinqGen;  // LinqGen 라이브러리
@@ -583,50 +588,17 @@ public static List<MetaEquipmentInfo> FindEquipmentInfos(EquipType equipType)
 }
 ```
 
-#### 4.3. ZString을 활용한 문자열 최적화
-
-UI 텍스트 갱신 시 문자열 할당 제거로 GC 압력을 줄였습니다.
-
 ```csharp
-using Cysharp.Text;  // ZString 라이브러리
-
+// ZString: UI 텍스트 Zero Allocation
 public static string GetSkillLevelText(int skillId)
 {
-    var level = GetLevel(skillId);
-
-    // 기존 방식: 할당 발생
-    // return $"Lv.{level}";
-
-    // ZString: Zero Allocation
-    return ZString.Format("Lv.{0}", level);
-}
-
-public static string GetStatText(double value)
-{
-    // 기존: string.Format → 할당
-    // return string.Format("{0:N0}", value);
-
-    // ZString: 할당 없음
-    using (var sb = ZString.CreateStringBuilder())
-    {
-        sb.Append(value.ToString("N0"));
-        return sb.ToString();
-    }
+    return ZString.Format("Lv.{0}", GetLevel(skillId));
 }
 ```
 
-**효과:**
-- GC가 발생하지 않음
-- 문자열 연산이 많은 방치형 게임에 필수
+#### 4.3. 변경 데이터 자동 감지 및 동기화 시스템
 
-#### 4.4. 변경 데이터 자동 감지 및 동기화 시스템
-
-80개 이상의 서버 데이터 테이블을 효율적으로 관리하기 위한 자동 동기화 시스템을 설계했습니다.
-
-**도전과제:**
-- 80개 이상의 ServerInfo (플레이어 데이터) 관리
-- 매번 모든 데이터를 서버로 전송하면 네트워크 부하 증가
-- 어떤 데이터가 변경되었는지 수동 추적 시 휴먼 에러 발생
+80+ 테이블에서 변경된 데이터만 자동으로 감지하여 서버에 전송하는 시스템입니다.
 
 ```csharp
 // ServerInfo 베이스 클래스
@@ -764,41 +736,10 @@ public static void AddAmount(string dataId, double amount)
 ```
 
 **설계 장점:**
-- 자동 변경 감지: ReactiveProperty + Subscribe 패턴으로 변경 시 자동 플래그 설정
-- 선택적 전송: isChangedValue가 true인 데이터만 서버로 전송
-- 중앙 관리: ServerSaveUtils가 모든 Manager를 통합 관리
-- 확장 용이: 새 테이블 추가 시 ServerManager만 상속하면 자동 등록
+- **자동 변경 감지**: ReactiveProperty + Subscribe 패턴
+- **선택적 전송**: isChangedValue가 true인 데이터만 전송
+- **확장 용이**: ServerManager 상속만으로 자동 등록
 
-**효과:**
-- 네트워크 트래픽: 전체 데이터 전송 대비 90% 이상 감소
-- 개발 생산성: 수동 추적 불필요, 휴먼 에러 제거
-- 80개 이상 테이블 일관된 방식으로 관리
-
----
-
-## 요약
-
-### 1. 아키텍처 설계 능력
-- Manager-Utils-Info 3계층 구조로 1000여개 스크립트 체계적 관리
-- FSM 패턴으로 복잡한 게임 상태 명확하게 분리
-- 캐싱 기반 StatCalculator 패턴으로 성능 최적화
-
-### 2. 성능 최적화 전문성
-- LinqGen, ZString 등 최신 라이브러리 활용으로 GC 최소화
-- Addressables 기반 메모리 관리
-
-### 3. 네트워크 안정성 구현
-- 재시도 메커니즘으로 네트워크 성공률 상승
-- 암호화 통신 + Anti-Cheat Toolkit으로 보안 강화
-- 멀티 서버 환경 지원 (한국/글로벌)
-
-### 4. 대규모 시스템 개발 경험
-- 100개 이상 스탯 계산 시스템
-- 15개 이상 게임 시스템 통합
-- 80개 이상 서버 테이블 자동 동기화 시스템
-
-### 5. 모던 C# 활용 역량
-- UniTask 비동기 처리
-- CancellationToken 생명주기 관리
-- ReactiveProperty로 자동 변경 감지
-- Func<T> 델리게이트 기반 콜백 시스템
+**트레이드오프:**
+- ReactiveProperty 오버헤드 → 변경 빈도가 낮아 무시할 수준
+- 모든 필드를 ReactiveProperty로 감싸야 함 → 코드 생성 도구로 자동화 가능
